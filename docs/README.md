@@ -8,6 +8,4 @@
 
 Why limit yourself to using ChatGPT solely through a browser? With `llm-rs`, you can leverage the power of ChatGPT right from your command line! `llm-rs` is a cutting-edge tool, meticulously crafted using the Rust programming language. 
 
-
-
 Special thanks to @sobelio for making this possible
