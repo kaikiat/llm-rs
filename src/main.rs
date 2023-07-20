@@ -1,4 +1,3 @@
-
 use clap::{Parser, Subcommand};
 use llm_chain::{executor, parameters, prompt};
 
@@ -22,10 +21,6 @@ enum Config {
     Set,
 }
 
-// cargo run -- help
-// cargo run -- config view
-// cargo run -- config set
-// cargo run -- "Tell me more about covid"
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
@@ -41,7 +36,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             Ok(())
         }
         None => {
-            config.get(false);
+            match &config.get(false) as &str {
+                "" => {
+                    println!("unknown api_key");
+                },
+                _ => {
+                }
+            }
             if let Some(prompts) = cli.prompts.as_deref() {
                 let exec = executor!()?;
                 let response = prompt!(prompts)

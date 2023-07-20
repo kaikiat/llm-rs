@@ -1,3 +1,7 @@
 /target
-
+debug/
 config.json
+.env
+Cargo.lock
+**/*.rs.bk
+*.pdb
