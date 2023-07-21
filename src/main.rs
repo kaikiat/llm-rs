@@ -17,7 +17,7 @@ struct Cli {
     prompts: Option<String>,
 
     #[command(subcommand)]
-    command: Option<Config>,
+    configure: Option<Config>,
 
     #[arg(short,long)]
     #[clap(default_value="false")]
@@ -39,18 +39,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Value for chain: {}", cli.chain);
     
-
-
-    match cli.command {
+    match cli.configure {
         Some(Config::View) => {
             config.get(true);                
-            Ok(())
+            return Ok(())
         }
         Some(Config::Set) => {
             config.set();
-            Ok(())
+            return Ok(())
         }
-        None => {
+        None => {}
+    };
+    
+    if let Some(prompts) = cli.prompts.as_deref() {
+        if prompts.len() > 0 && cli.chain == false {
             match &config.get(false) as &str {
                 "" => {
                     println!("unknown api_key");
@@ -58,16 +60,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 _ => {
                 }
             }
-            // if let Some(prompts) = cli.prompts.as_deref() {
-            //     let exec = executor!()?;
-            //     let response = prompt!(prompts)
-            //         .run(&parameters!(), &exec)
-            //         .await?;
-            //     println!("{}", response);
-            //     Ok(())
-            // } else {
-            //     Ok(())
-            // }
+            let exec = executor!()?;
+            let response = prompt!(prompts)
+                    .run(&parameters!(), &exec)
+                    .await?;
+            println!("{}", response);
+            return Ok(())
+        } 
+        else if prompts.len() > 0 && cli.chain == true { 
+            println!("chain")
             // let chatgpt = Executor::new()?;
             // let mut path = std::env::temp_dir();
             // path.push("chain-from-json.yaml");
@@ -85,8 +86,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             // let res = chain.run(parameters!(), &chatgpt).await.unwrap();
             // println!("{}", res);
             // Ok(())
-            Ok(())
         }
     }
+
+    Ok(())
+   
+    // match cli.configure {
+ 
  
 }
