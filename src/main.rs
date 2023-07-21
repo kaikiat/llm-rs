@@ -1,13 +1,12 @@
+use std::fs;
 use clap::{Parser, Subcommand};
-use llm_chain::{executor, parameters, prompt};
+use llm_chain::{executor, parameters, prompt, Parameters};
+use llm_chain::step::Step;
+use llm_chain::chains::map_reduce::Chain;
 
 mod commands;
+mod errors;
 
-use llm_chain::chains::sequential::Chain;
-use llm_chain::serialization::StorableEntity;
-use llm_chain::step::Step;
-use llm_chain::traits::Executor as ExecutorTrait;
-use llm_chain_openai::chatgpt::Executor;
 
 #[derive(Parser)]
 #[command(name = "llm-rs cli tool")]
@@ -19,9 +18,8 @@ struct Cli {
     #[command(subcommand)]
     configure: Option<Config>,
 
-    #[arg(short,long)]
-    #[clap(default_value="false")]
-    chain: bool
+    #[arg(long)]
+    file: Option<String>
 }
 
 #[derive(Subcommand,Debug)] 
@@ -33,11 +31,10 @@ enum Config {
 }
 
 #[tokio::main(flavor = "current_thread")]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), errors::Error> {
     let cli = Cli::parse();
     let config = commands::config::Config::new();
-
-    println!("Value for chain: {}", cli.chain);
     
     match cli.configure {
         Some(Config::View) => {
@@ -52,7 +49,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     
     if let Some(prompts) = cli.prompts.as_deref() {
-        if prompts.len() > 0 && cli.chain == false {
+        if prompts.len() > 0{
+            println!("prompts {}",prompts);
             match &config.get(false) as &str {
                 "" => {
                     println!("unknown api_key");
@@ -63,35 +61,41 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let exec = executor!()?;
             let response = prompt!(prompts)
                     .run(&parameters!(), &exec)
-                    .await?;
+                    .await.unwrap();
             println!("{}", response);
             return Ok(())
         } 
-        else if prompts.len() > 0 && cli.chain == true { 
-            println!("chain")
-            // let chatgpt = Executor::new()?;
-            // let mut path = std::env::temp_dir();
-            // path.push("chain-from-json.yaml");
-            // let path = path.to_str().unwrap();
-        
-            // let chain_to_write: Chain = Step::for_prompt_template(prompt!(
-            //     "You are a bot for making personalized greetings",
-            //     "Make a personalized greet for Joe"
-            // ))
-            // .to_chain();
-            // chain_to_write.write_file_sync(path)?;
-            // println!("Wrote chain to {}", path);
-        
-            // let chain = Chain::read_file_sync(path).unwrap();
-            // let res = chain.run(parameters!(), &chatgpt).await.unwrap();
-            // println!("{}", res);
-            // Ok(())
-        }
     }
 
-    Ok(())
-   
-    // match cli.configure {
- 
- 
+    if let Some(filepath) = cli.file {
+        let exec = executor!()?;
+
+        let map_prompt = Step::for_prompt_template(prompt!(
+            "You are a bot for summarizing wikipedia articles, you are terse and focus on accuracy",
+            "Summarize this article into bullet points:\n{{text}}"
+        ));
+
+        let reduce_prompt = Step::for_prompt_template(prompt!(
+            "You are a diligent bot that summarizes text",
+            "Please combine the articles below into one summary as bullet points:\n{{text}}"
+        ));
+
+        let chain = Chain::new(map_prompt, reduce_prompt);
+        let article = match fs::read_to_string(filepath) {
+            Ok(content) => content,
+            Err(err) => {
+                return Err(errors::Error::CustomInput(err.to_string()))
+            }
+        };
+        let docs = vec![parameters!(article)];
+
+        let res = chain.run(docs, Parameters::new(), &exec).await.unwrap();
+
+        println!("{}", res);
+
+        return Ok(())
+    }
+
+    return Err(errors::Error::CustomInput("an errror occurred, type --help to view the commands".to_string()))
+    
 }

@@ -1,6 +1,9 @@
 /target
 debug/
 config.json
+chain.yaml
+chain.json
+article.txt
 .env
 Cargo.lock
 **/*.rs.bk
