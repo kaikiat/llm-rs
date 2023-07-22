@@ -9,3 +9,28 @@
 Why limit yourself to using ChatGPT solely through a browser? With `llm-rs`, you can leverage the power of ChatGPT right from your command line! `llm-rs` is a cutting-edge tool, meticulously crafted using the Rust programming language. 
 
 Special thanks to @sobelio for making this possible
+
+# Examples
+Run `llm --help` to see available commands
+
+Setting up llm configuration
+```
+$ llm config set
+
+Please enter OpenAI API key [OPENAI_API_KEY]: XXXXXX
+```
+
+View llm configuration
+```
+$ llm config view
+```
+
+Ask a question 
+```
+$ llm "Tell me more about Rust ?"
+```
+
+Summarise an article, can be json or text file
+```
+$ llm --file /path/to/article.txt
+```
