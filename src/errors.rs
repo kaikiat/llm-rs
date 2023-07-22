@@ -20,7 +20,6 @@ impl fmt::Display for Error {
 
 impl From<ExecutorCreationError> for Error {
     fn from(err: ExecutorCreationError) -> Self {
-        // Convert the specific error type to your custom error type.
         Error::CustomInput(format!("an error occured: {:?}", err))
     }
 }

@@ -5,6 +5,7 @@ use std::fs::File;
 use std::{io, io::Write};
 use serde_json::json;
 
+#[derive(Clone)] 
 pub struct Config;
 
 impl Config {

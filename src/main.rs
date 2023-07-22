@@ -35,6 +35,7 @@ enum Config {
 async fn main() -> Result<(), errors::Error> {
     let cli = Cli::parse();
     let config = commands::config::Config::new();
+    let prompt_client = commands::prompt::Prompt::new(config.clone());
     
     match cli.configure {
         Some(Config::View) => {
@@ -50,20 +51,30 @@ async fn main() -> Result<(), errors::Error> {
     
     if let Some(prompts) = cli.prompts.as_deref() {
         if prompts.len() > 0{
-            println!("prompts {}",prompts);
-            match &config.get(false) as &str {
-                "" => {
-                    println!("unknown api_key");
-                },
-                _ => {
+            let response = prompt_client.execute(prompts.to_string()).await;
+            match response {
+                Ok(output) => {
+                    println!("{}", output);
+                    return Ok(());
+                }
+                Err(err) => {
+                    return Err(errors::Error::CustomInput(err.to_string()));
                 }
             }
-            let exec = executor!()?;
-            let response = prompt!(prompts)
-                    .run(&parameters!(), &exec)
-                    .await.unwrap();
-            println!("{}", response);
-            return Ok(())
+            // prompts.execute(prompts);
+            // match &config.get(false) as &str {
+            //     "" => {
+            //         println!("unknown api_key");
+            //     },
+            //     _ => {
+            //     }
+            // }
+            // let exec = executor!()?;
+            // let response = prompt!(prompts)
+            //         .run(&parameters!(), &exec)
+            //         .await.unwrap();
+            // println!("{}", response);
+            // return Ok(())
         } 
     }
 
