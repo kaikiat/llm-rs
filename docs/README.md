@@ -36,3 +36,5 @@ Summarise an article, can be json or text file
 ```
 $ llm --file /path/to/article.txt
 ```
+
+export url=https://github.com/golang-migrate/migrate/releases/download/$version/migrate.$os-$arch.tar.gz

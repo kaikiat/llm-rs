@@ -30,7 +30,7 @@ enum Config {
 async fn main() -> Result<(), errors::Error> {
     let cli = Cli::parse();
     let config = commands::config::Config::new();
-    let prompt_client = commands::llm::Llm::new(config.clone());
+    let llm = commands::llm::Llm::new(config.clone());
     
     match cli.configure {
         Some(Config::View) => {
@@ -46,7 +46,7 @@ async fn main() -> Result<(), errors::Error> {
     
     if let Some(prompts) = cli.prompts.as_deref() {
         if prompts.len() > 0{
-            let response = prompt_client.ask(prompts.to_string()).await;
+            let response = llm.ask(prompts.to_string()).await;
             match response {
                 Ok(output) => {
                     println!("{}", output);
@@ -61,7 +61,7 @@ async fn main() -> Result<(), errors::Error> {
 
     if let Some(filepath) = cli.file {
 
-        let response = prompt_client.summarise(filepath.to_string()).await;
+        let response = llm.summarise(filepath.to_string()).await;
             match response {
                 Ok(output) => {
                     println!("{}", output);
