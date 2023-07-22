@@ -23,6 +23,8 @@ Please enter OpenAI API key [OPENAI_API_KEY]: XXXXXX
 View llm configuration
 ```
 $ llm config view
+
+[OPENAI_API_KEY]: XXXXXX
 ```
 
 Ask a question 
