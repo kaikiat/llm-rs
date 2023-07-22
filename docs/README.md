@@ -10,6 +10,14 @@ Why limit yourself to using ChatGPT solely through a browser? With `llm-rs`, you
 
 Special thanks to @sobelio for making this possible
 
+# Setup
+llm-rs only supports **darwin amd64**
+
+```
+curl -Lo llm https://github.com/kaikiat/llm-rs/releases/download/1.0.0/llm-rs && \
+chmod +x llm && \
+sudo mv llm /usr/local/bin/
+```
 # Examples
 Run `llm --help` to see available commands
 
@@ -36,5 +44,3 @@ Summarise an article, can be json or text file
 ```
 $ llm --file /path/to/article.txt
 ```
-
-export url=https://github.com/golang-migrate/migrate/releases/download/$version/migrate.$os-$arch.tar.gz
